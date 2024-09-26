@@ -1,0 +1,12 @@
+1.0.0 9/26/2024: This is a fully functioning version of the Paladins Random Team website which allows the user to do the following:
+ - Randomize up to two teams of champions.
+ - Rename the players to allow for more precise randomization
+ - Toggle any player on/off
+ - Toggle team 2 on/off
+ - Toggle on/off mirror matchups
+ - Toggle on/off "fair mode". This is a mode that ensures each team has at least 1 tank and 1 support. If a team has neither and only one player on a team is selected, it will always prioritize support.
+
+1.1.0 9/26/2024: Rewrote much of the algorithm to fix bugs regarding team sizes of less than 5. This includes:
+ - Ensuring that when one player on a team is selected, they will ALWAYS be a support if the team lacks a support or that player is the only support in "fair mode".
+ - Ensuring that when one player on a team is selected, they will ALWAYS be a tank if the team lacks a tank or that player is the only tank and the team already has a support in "fair mode".
+ - Fixing multiple memory overflow crashes.
