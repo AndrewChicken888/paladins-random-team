@@ -117,6 +117,7 @@ function randomize() {
 			}
 		}
 		//Only randomize the toggles that are selected.
+		/* Old algorithm
 		for (i=0; i<toggles.length; i++) {
 			if (toggles[i].checked) {
 				//Check if mirror matchups are allowed. Check for duplicates accordingly.
@@ -127,7 +128,7 @@ function randomize() {
 						champID = rand;
 						champ = champions[rand];
 						for (x=0; x<team1champs.length; x++) {
-							if (champ == team1champs[x]) {
+							if (champ === team1champs[x]) {
 								rand = Math.floor(Math.random()*champions.length);
 								champID = rand;
 								champ = champions[rand];
@@ -140,7 +141,7 @@ function randomize() {
 						champID = rand;
 						champ = champions[rand];
 						for (x=0; x<team2champs.length; x++) {
-							if (champ == team2champs[x]) {
+							if (champ === team2champs[x]) {
 								rand = Math.floor(Math.random()*champions.length);
 								champID = rand;
 								champ = champions[rand];
@@ -154,7 +155,7 @@ function randomize() {
 					champID = rand;
 					champ = champions[rand];
 					for (x=0; x<noMirror.length; x++) {
-						if (champ == noMirror[x]) {
+						if (champ === noMirror[x]) {
 							rand = Math.floor(Math.random()*champions.length);
 							champID = rand;
 							champ = champions[rand];
@@ -162,6 +163,42 @@ function randomize() {
 						}
 					}
 					noMirror[i] = champ;
+				}
+				images[i].src = champ + ".png";
+				images[i].style.border = ".3vw solid #FFFF00";
+			}
+		}*/
+		
+		//Randomize the teams initially.
+		for (i=0; i<toggles.length; i++) {
+			if (toggles[i].checked) {
+				//Properly check each team for duplicates when randomizing
+				if (i<5) {
+					rand = Math.floor(Math.random()*champions.length);
+					champID = rand;
+					champ = champions[rand];
+					for (x=0; x<team1champs.length; x++) {
+						if (champ === team1champs[x]) {
+							rand = Math.floor(Math.random()*champions.length);
+							champID = rand;
+							champ = champions[rand];
+							x=0;
+						}
+					}
+					team1champs[i] = champ;
+				} else {
+					rand = Math.floor(Math.random()*champions.length);
+					champID = rand;
+					champ = champions[rand];
+					for (x=0; x<team2champs.length; x++) {
+						if (champ === team2champs[x]) {
+							rand = Math.floor(Math.random()*champions.length);
+							champID = rand;
+							champ = champions[rand];
+							x=0;
+						}
+					}
+					team2champs[i-5] = champ;
 				}
 				images[i].src = champ + ".png";
 				images[i].style.border = ".3vw solid #FFFF00";
@@ -197,9 +234,8 @@ function randomize() {
 						}
 					}
 				}
-				
 				//If there is only one person selected but the team lacks a tank & support, prioritize turning them into a healer.
-				if (!team1support && !team1tank && totalt1members === 1) {
+				if (totalt1members === 1) {
 					var foundPlayer = false;
 					while (!foundPlayer) {
 						randPlayer = Math.floor(Math.random()*5);
@@ -207,71 +243,142 @@ function randomize() {
 							foundPlayer = true;
 						}
 					}
-					rand = Math.floor(Math.random()*supports.length);
-					champID = rand;
-					champ = supports[rand];
-					team1champs[randPlayer] = champ;
-					images[randPlayer].src = champ + ".png";
-					team1support = true;
-					team1tank = true;
-				}
-				
-				//If there is no support, choose a random player to become a support (if their box is checked).
-				if (!team1support) {
-					var foundPlayer = false;
+					//Check if they're a support already.
+					var isSupport = false;
+					for (var z=0; z<supports.length; z++) {
+						if (team1champs[randPlayer] === supports[z]) {
+							isSupport = true;
+						}
+					}
+					var numSupports = 0;
+					//Check how many supports are in the valid pool.
+					for (var j=0; j<team1champs.length; j++) {
+						for (var h=0; h<supports.length; h++) {
+							if (team1champs[j] === supports[h]) {
+								numSupports++;
+							}
+						}
+					}
+					//Check if they're a tank already.
 					var isTank = false;
-					while (!foundPlayer) {
-						randPlayer = Math.floor(Math.random()*5);
-						if (toggles[randPlayer].checked) {
-							//Make sure the player is not already a tank
-							if (totalt1members != 1) {
-								for (var z=0; z<tanks.length; z++) {
-									if (team1champs[randPlayer] === tanks[z]) {
-										isTank = true;
-										z=tanks.length;
+					for (var z=0; z<tanks.length; z++) {
+						if (team1champs[randPlayer] === tanks[z]) {
+							isTank = true;
+						}
+					}
+					var numTanks = 0;
+					//Check how many tanks are in the valid pool.
+					for (var j=0; j<team1champs.length; j++) {
+						for (var h=0; h<tanks.length; h++) {
+							if (team1champs[j] === tanks[h]) {
+								numTanks++;
+							}
+						}
+					}
+					//If the team does not have a support, or the team has 1 support and this player is the support, turn them into a support.
+					if ((!team1support || (team1support && isSupport)) && numSupports < 2) {
+						rand = Math.floor(Math.random()*supports.length);
+						champID = rand;
+						champ = supports[rand];
+						team1champs[randPlayer] = champ;
+						images[randPlayer].src = champ + ".png";
+						team1support = true;
+						team1tank = true;
+					} else if ((!team1tank || (team1tank && isTank)) && numTanks < 2) { //If the team does not have a tank, or the team has 1 tank and this player is the tank, turn them into a tank.
+						rand = Math.floor(Math.random()*tanks.length);
+						champID = rand;
+						champ = tanks[rand];
+						team1champs[randPlayer] = champ;
+						images[randPlayer].src = champ + ".png";
+						team1support = true;
+						team1tank = true;
+					}
+				} else {
+					//If there is no support, choose a random player to become a support (if their box is checked).
+					if (!team1support) {
+						var foundPlayer = false;
+						var isTank = false;
+						var numTanks = 0;
+						//Check how many tanks are in the valid pool.
+						for (var j=0; j<team1champs.length; j++) {
+							if (toggles[j].checked) {
+								for (var h=0; h<tanks.length; h++) {
+									if (team1champs[j] === tanks[h]) {
+										numTanks++;
 									}
 								}
 							}
-							if (!isTank) {
-								foundPlayer = true;
-							}
-							isTank = false;
 						}
+						while (!foundPlayer) {
+							randPlayer = Math.floor(Math.random()*5);
+							if (toggles[randPlayer].checked) {
+								//Make sure the player is not already a tank
+								if (totalt1members != 1) {
+									for (var z=0; z<tanks.length; z++) {
+										if (team1champs[randPlayer] === tanks[z]) {
+											isTank = true;
+										}
+									}
+									//If all players are tanks, then force the selected player to become a support.
+									if (numTanks === totalt1members) {
+										foundPlayer = true;
+									}
+								}
+								if (!isTank) {
+									foundPlayer = true;
+								}
+								isTank = false;
+							}
+						}
+						rand = Math.floor(Math.random()*supports.length);
+						champID = rand;
+						champ = supports[rand];
+						team1champs[randPlayer] = champ;
+						images[randPlayer].src = champ + ".png";
 					}
-					rand = Math.floor(Math.random()*supports.length);
-					champID = rand;
-					champ = supports[rand];
-					team1champs[randPlayer] = champ;
-					images[randPlayer].src = champ + ".png";
-				}
-				
-				//If there is no tank, choose a random player to become a tank (if their box is checked).
-				if (!team1tank) {
-					var foundPlayer = false;
-					var isSupport
-					while (!foundPlayer) {
-						randPlayer = Math.floor(Math.random()*5);
-						if (toggles[randPlayer].checked) {
-							//Make sure the player is not already a support
-							if (totalt1members != 1) {
-								for (var z=0; z<supports.length; z++) {
-									if (team1champs[randPlayer] === supports[z]) {
-										isSupport = true;
-										z=supports.length;
+					
+					//If there is no tank, choose a random player to become a tank (if their box is checked).
+					if (!team1tank) {
+						var foundPlayer = false;
+						var isSupport = false;
+						var numSupports = 0;
+						//Check how many supports are in the valid pool.
+						for (var j=0; j<team1champs.length; j++) {
+							if (toggles[j].checked) {
+								for (var h=0; h<supports.length; h++) {
+									if (team1champs[j] === supports[h]) {
+										numSupports++;
 									}
 								}
 							}
-							if (!isSupport) {
-								foundPlayer = true;
-							}
-							isSupport = false;
 						}
+						while (!foundPlayer) {
+							randPlayer = Math.floor(Math.random()*5);
+							if (toggles[randPlayer].checked) {
+								//Make sure the player is not already a support
+								if (totalt1members != 1) {
+									for (var z=0; z<supports.length; z++) {
+										if (team1champs[randPlayer] === supports[z]) {
+											isSupport = true;
+										}
+									}
+									//If all players are supports, then force the selected player to become a tank.
+									if (numSupports === totalt1members) {
+										foundPlayer = true;
+									}
+								}
+								if (!isSupport) {
+									foundPlayer = true;
+								}
+								isSupport = false;
+							}
+						}
+						rand = Math.floor(Math.random()*tanks.length);
+						champID = rand;
+						champ = tanks[rand];
+						team1champs[randPlayer] = champ;
+						images[randPlayer].src = champ + ".png";
 					}
-					rand = Math.floor(Math.random()*tanks.length);
-					champID = rand;
-					champ = tanks[rand];
-					team1champs[randPlayer] = champ;
-					images[randPlayer].src = champ + ".png";
 				}
 			}
 			
@@ -301,81 +408,321 @@ function randomize() {
 						}
 					}
 				}
-				
 				//If there is only one person selected but the team lacks a tank & support, prioritize turning them into a healer.
-				if (!team2support && !team2tank && totalt2members === 1) {
+				if (totalt2members === 1) {
 					var foundPlayer = false;
 					while (!foundPlayer) {
 						randPlayer = Math.floor(Math.random()*5);
-						if (toggles[randPlayer].checked) {
+						if (toggles[randPlayer+5].checked) {
 							foundPlayer = true;
 						}
 					}
-					rand = Math.floor(Math.random()*supports.length);
-					champID = rand;
-					champ = supports[rand];
-					team2champs[randPlayer] = champ;
-					images[randPlayer+5].src = champ + ".png";
-					team2support = true;
-					team2tank = true;
-				}
-				
-				//If there is no support, choose a random player to become a support (if their box is checked).
-				if (!team2support) {
-					var foundPlayer = false;
+					//Check if they're a support already.
+					var isSupport = false;
+					for (var z=0; z<supports.length; z++) {
+						if (team2champs[randPlayer] === supports[z]) {
+							isSupport = true;
+						}
+					}
+					var numSupports = 0;
+					//Check how many supports are in the valid pool.
+					for (var j=0; j<team1champs.length; j++) {
+						for (var h=0; h<supports.length; h++) {
+							if (team2champs[j] === supports[h]) {
+								numSupports++;
+							}
+						}
+					}
+					//Check if they're a tank already.
 					var isTank = false;
-					while (!foundPlayer) {
-						randPlayer = Math.floor(Math.random()*5);
-						if (toggles[randPlayer+5].checked) {
-							//Make sure the player is not already a tank
-							if (totalt2members != 1) {
-								for (var z=0; z<tanks.length; z++) {
-									if (team2champs[randPlayer] === tanks[z]) {
-										isTank = true;
-										z=tanks.length;
+					for (var z=0; z<tanks.length; z++) {
+						if (team2champs[randPlayer] === tanks[z]) {
+							isTank = true;
+						}
+					}
+					var numTanks = 0;
+					//Check how many tanks are in the valid pool.
+					for (var j=0; j<team1champs.length; j++) {
+						for (var h=0; h<tanks.length; h++) {
+							if (team2champs[j] === tanks[h]) {
+								numTanks++;
+							}
+						}
+					}
+					//If the team does not have a support, or the team has 1 support and this player is the support, turn them into a support.
+					if ((!team2support || (team2support && isSupport)) && numSupports < 2) {
+						rand = Math.floor(Math.random()*supports.length);
+						champID = rand;
+						champ = supports[rand];
+						team2champs[randPlayer] = champ;
+						images[randPlayer+5].src = champ + ".png";
+						team2support = true;
+						team2tank = true;
+					} else if ((!team2tank || (team2tank && isTank)) && numTanks < 2) { //If the team does not have a tank, or the team has 1 tank and this player is the tank, turn them into a tank.
+						rand = Math.floor(Math.random()*tanks.length);
+						champID = rand;
+						champ = tanks[rand];
+						team2champs[randPlayer] = champ;
+						images[randPlayer+5].src = champ + ".png";
+						team2support = true;
+						team2tank = true;
+					}
+				} else {
+					//If there is no support, choose a random player to become a support (if their box is checked).
+					if (!team2support) {
+						var foundPlayer = false;
+						var isTank = false;
+						var numTanks = 0;
+						//Check how many tanks are in the valid pool.
+						for (var j=0; j<team2champs.length; j++) {
+							if (toggles[j+5].checked) {
+								for (var h=0; h<tanks.length; h++) {
+									if (team2champs[j] === tanks[h]) {
+										numTanks++;
 									}
 								}
 							}
-							if (!isTank) {
-								foundPlayer = true;
-							}
-							isTank = false;
 						}
+						while (!foundPlayer) {
+							randPlayer = Math.floor(Math.random()*5);
+							if (toggles[randPlayer+5].checked) {
+								//Make sure the player is not already a tank
+								if (totalt2members != 1) {
+									for (var z=0; z<tanks.length; z++) {
+										if (team2champs[randPlayer] === tanks[z]) {
+											isTank = true;
+										}
+									}
+									//If all players are tanks, then force the selected player to become a support.
+									if (numTanks === totalt2members) {
+										foundPlayer = true;
+									}
+								}
+								if (!isTank) {
+									foundPlayer = true;
+								}
+								isTank = false;
+							}
+						}
+						rand = Math.floor(Math.random()*supports.length);
+						champID = rand;
+						champ = supports[rand];
+						team2champs[randPlayer] = champ;
+						images[randPlayer+5].src = champ + ".png";
 					}
-					rand = Math.floor(Math.random()*supports.length);
-					champID = rand;
-					champ = supports[rand];
-					team2champs[randPlayer] = champ;
-					images[randPlayer+5].src = champ + ".png";
+					
+					//If there is no tank, choose a random player to become a tank (if their box is checked).
+					if (!team2tank) {
+						var foundPlayer = false;
+						var isSupport = false;
+						var numSupports = 0;
+						//Check how many supports are in the valid pool.
+						for (var j=0; j<team2champs.length; j++) {
+							if (toggles[j+5].checked) {
+								for (var h=0; h<supports.length; h++) {
+									if (team2champs[j] === supports[h]) {
+										numSupports++;
+									}
+								}
+							}
+						}
+						while (!foundPlayer) {
+							randPlayer = Math.floor(Math.random()*5);
+							if (toggles[randPlayer+5].checked) {
+								//Make sure the player is not already a support
+								if (totalt2members != 1) {
+									for (var z=0; z<supports.length; z++) {
+										if (team2champs[randPlayer] === supports[z]) {
+											isSupport = true;
+										}
+									}
+									//If all players are supports, then force the selected player to become a tank.
+									if (numSupports === totalt2members) {
+										foundPlayer = true;
+									}
+								}
+								if (!isSupport) {
+									foundPlayer = true;
+								}
+								isSupport = false;
+							}
+						}
+						rand = Math.floor(Math.random()*tanks.length);
+						champID = rand;
+						champ = tanks[rand];
+						team2champs[randPlayer] = champ;
+						images[randPlayer+5].src = champ + ".png";
+					}
 				}
-				
-				//If there is no tank, choose a random player to become a tank (if their box is checked).
-				if (!team2tank) {
-					var foundPlayer = false;
-					var isSupport
-					while (!foundPlayer) {
-						randPlayer = Math.floor(Math.random()*5);
-						if (toggles[randPlayer+5].checked) {
-							//Make sure the player is not already a support
-							if (totalt2members != 1) {
+			}
+		}
+		
+		//If mirror matchups are not on, make sure that none of the champions are duplicates across teams.
+		if (!toggleMirror.checked) {
+			//Set the mirror array to be the composite of both teams' arrays.
+			for (y=0; y<noMirror.length; y++) {
+				if (y<5) {
+					noMirror[y] = team1champs[y];
+				} else {
+					noMirror[y] = team2champs[y-5];
+				}
+			}
+			//Check how many supports are on each team.
+			var numSupportsT1 = 0;
+			var numSupportsT2 = 0;
+			for (var q=0; q<team1champs.length; q++) {
+				for (var z=0; z<supports.length; z++) {
+					if (team1champs[q] === supports[z]) {
+						numSupportsT1++;
+					}
+				}
+			}
+			for (var q=0; q<team2champs.length; q++) {
+				for (var z=0; z<supports.length; z++) {
+					if (team2champs[q] === supports[z]) {
+						numSupportsT2++;
+					}
+				}
+			}
+			//Check how many tanks are on each team.
+			var numTanksT1 = 0;
+			var numTanksT2 = 0;
+			for (var q=0; q<team1champs.length; q++) {
+				for (var z=0; z<tanks.length; z++) {
+					if (team1champs[q] === tanks[z]) {
+						numTanksT1++;
+					}
+				}
+			}
+			for (var q=0; q<team2champs.length; q++) {
+				for (var z=0; z<tanks.length; z++) {
+					if (team2champs[q] === tanks[z]) {
+						numTanksT2++;
+					}
+				}
+			}
+			//alert(""+team1champs+":"+numSupportsT1+":"+numTanksT1);
+			//alert(""+team2champs+":"+numSupportsT2+":"+numTanksT2);
+			//Loop through each toggle
+			for (i=0; i<toggles.length; i++) {
+				if (toggles[i].checked) {
+					//Check the champion in the mirror array corresponding with the current toggle versus the champ list of the opposing team.
+					if (i<5) { //If the number is less than 5, check them against team 2
+						for (x=0; x<team2champs.length; x++) {
+							//If the champs are the same, randomize a fresh champ.
+							if (noMirror[i] === team2champs[x]) {
+								//Check if the champion is a support.
+								var isSupport = false;
+								var isTank = false;
 								for (var z=0; z<supports.length; z++) {
-									if (team2champs[randPlayer] === supports[z]) {
+									if (noMirror[i] === supports[z]) {
 										isSupport = true;
-										z=supports.length;
 									}
 								}
+								//If they are not a support, check if they're a tank.
+								if (!isSupport) {
+									for (var z=0; z<tanks.length; z++) {
+										if (noMirror[i] === tanks[z]) {
+											isTank = true;
+										}
+									}
+								}
+								//If they are a support and there is only one support and fair teams are on, randomize them into a support.
+								if (isSupport && numSupportsT1 === 1 && toggleFair.checked) {
+									rand = Math.floor(Math.random()*supports.length);
+									champID = rand;
+									champ = supports[rand];
+									while (champ === team2champs[x]) {
+										rand = Math.floor(Math.random()*supports.length);
+										champID = rand;
+										champ = supports[rand];
+									}
+								} else if (isTank && numTanksT1 === 1 && toggleFair.checked) { //If they are a tank and there is only one tank and fair teams are on, randomize them into a tank.
+									rand = Math.floor(Math.random()*tanks.length);
+									champID = rand;
+									champ = tanks[rand];
+									while (champ === team2champs[x]) {
+										rand = Math.floor(Math.random()*tanks.length);
+										champID = rand;
+										champ = tanks[rand];
+									}
+								} else { //Randomize them into any champion.
+									rand = Math.floor(Math.random()*champions.length);
+									champID = rand;
+									champ = champions[rand];
+									while (champ === team2champs[x]) {
+										rand = Math.floor(Math.random()*champions.length);
+										champID = rand;
+										champ = champions[rand];
+									}
+								}
+								images[i].src = champ + ".png";
+								images[i].style.border = ".3vw solid #FFFF00";
+								noMirror[i] = champ;
+								team1champs[i] = champ;
+								//Restart the loop to check the new champion against the list again.
+								x=0;
 							}
-							if (!isSupport) {
-								foundPlayer = true;
+						}
+					} else {
+						//Otherwise, check against team 1's champions.
+						for (x=0; x<team1champs.length; x++) {
+							//If the champs are the same, randomize a fresh champ.
+							if (noMirror[i] === team1champs[x]) {
+								//Check if the champion is a support.
+								var isSupport = false;
+								var isTank = false;
+								for (var z=0; z<supports.length; z++) {
+									if (noMirror[i] === supports[z]) {
+										isSupport = true;
+									}
+								}
+								//If they are not a support, check if they're a tank.
+								if (!isSupport) {
+									for (var z=0; z<tanks.length; z++) {
+										if (noMirror[i] === tanks[z]) {
+											isTank = true;
+										}
+									}
+								}
+								//If they are a support and there is only one support and fair teams are on, randomize them into a support.
+								if (isSupport && numSupportsT1 === 1 && toggleFair.checked) {
+									rand = Math.floor(Math.random()*supports.length);
+									champID = rand;
+									champ = supports[rand];
+									while (champ === team1champs[x]) {
+										rand = Math.floor(Math.random()*supports.length);
+										champID = rand;
+										champ = supports[rand];
+									}
+								} else if (isTank && numTanksT1 === 1 && toggleFair.checked) { //If they are a tank and there is only one tank and fair teams are on, randomize them into a tank.
+									rand = Math.floor(Math.random()*tanks.length);
+									champID = rand;
+									champ = tanks[rand];
+									while (champ === team1champs[x]) {
+										rand = Math.floor(Math.random()*tanks.length);
+										champID = rand;
+										champ = tanks[rand];
+									}
+								} else { //Randomize them into any champion.
+									rand = Math.floor(Math.random()*champions.length);
+									champID = rand;
+									champ = champions[rand];
+									while (champ === team1champs[x]) {
+										rand = Math.floor(Math.random()*champions.length);
+										champID = rand;
+										champ = champions[rand];
+									}
+								}								
+								images[i].src = champ + ".png";
+								images[i].style.border = ".3vw solid #FFFF00";
+								noMirror[i] = champ;
+								team2champs[i-5] = champ;
+								//Restart the loop to check the new champion against the list again.
+								x=0;
 							}
-							isSupport = false;
 						}
 					}
-					rand = Math.floor(Math.random()*tanks.length);
-					champID = rand;
-					champ = tanks[rand];
-					team2champs[randPlayer] = champ;
-					images[randPlayer+5].src = champ + ".png";
 				}
 			}
 		}
