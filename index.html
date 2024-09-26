@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<head>
+	<title>Paladins Team Randomizer</title>
+	<script type="text/javascript" src="code.js"></script>
+	<link rel="stylesheet" href="style.css"/>
+	<link rel="shortcut icon" href="icon.PNG"/>
+</head>
+<body onload="init()">
+	<div id="header"><h1 id="headerText">Paladins Team Randomizer</h1></div>
+	<div id="settings">
+		<h1>Settings</h1>
+		<p>Toggle Team 2:  <label class="settingcontainer"><input class="toggle" id="togglet2" type="checkbox"><span class="checkmark"></span></label></p>
+		<p>Mirror Matchups:  <label class="settingcontainer"><input class="toggle" id="toggleMirror" type="checkbox" checked><span class="checkmark"></span></label></p>
+		<p>Fair Teams (at least 1 support & tank):  <label class="settingcontainer"><input class="toggle" id="toggleFair" type="checkbox" checked><span class="checkmark"></span></label></p>
+		<button type="button" id="goBack2" onclick="settings()">Back</button>
+	</div>
+	<div id="main">
+		<p>This randomizer lets you randomize champions for your entire team! Updated for Season 7!</p>
+		<p>Also try the <a id="champRandom" href="https://andrewchicken888.github.io/paladins-randomizer/" target="_blank" rel="noopener noreferrer">Paladins Randomizer</a> and the <a id="champRandom" href="https://andrewchicken888.github.io/champion-box/" target="_blank" rel="noopener noreferrer">Paladins Champion Box!</a></p><br>
+		<!--Team 1-->
+		<div class="playercontainer">
+			<img id="t1p1" src="DefaultChamp.png"/>
+			<label class="checkcontainer"><input class="teamcheck" id="togglet1p1" type="checkbox" checked><span class="checkmark"></span></label>
+			<input class="nameplate" id="namet1p1" tabindex="1" placeholder="Player 1"/>
+		</div>
+		<div class="playercontainer">
+			<img id="t1p2" src="DefaultChamp.png"/>
+			<label class="checkcontainer"><input class="teamcheck" id="togglet1p2" type="checkbox" checked><span class="checkmark"></span></label>
+			<input class="nameplate" id="namet1p2" tabindex="2" placeholder="Player 2"/>
+		</div>
+		<div class="playercontainer">
+			<img id="t1p3" src="DefaultChamp.png"/>
+			<label class="checkcontainer"><input class="teamcheck" id="togglet1p3" type="checkbox" checked><span class="checkmark"></span></label>
+			<input class="nameplate" id="namet1p3" tabindex="3" placeholder="Player 3"/>
+		</div>
+		<div class="playercontainer">
+			<img id="t1p4" src="DefaultChamp.png"/>
+			<label class="checkcontainer"><input class="teamcheck" id="togglet1p4" type="checkbox" checked><span class="checkmark"></span></label>
+			<input class="nameplate" id="namet1p4" tabindex="4" placeholder="Player 4"/>
+		</div>
+		<div class="playercontainer">
+			<img id="t1p5" src="DefaultChamp.png"/>
+			<label class="checkcontainer"><input class="teamcheck" id="togglet1p5" type="checkbox" checked><span class="checkmark"></span></label>
+			<input class="nameplate" id="namet1p5" tabindex="5" placeholder="Player 5"/>
+		</div>
+		<br><br>
+		<button id="randomize" onclick="randomize()" type="button">Randomize!</button>
+		<!--Team 2-->
+		<br><br>
+		<div id="team2">
+			<div class="playercontainer">
+				<img id="t2p1" src="DefaultChamp.png"/>
+				<label class="checkcontainer"><input class="teamcheck" id="togglet2p1" type="checkbox"><span class="checkmark"></span></label>
+				<input class="nameplate" id="namet2p1" tabindex="6" placeholder="Player 1"/>
+			</div>
+			<div class="playercontainer">
+				<img id="t2p2" src="DefaultChamp.png"/>
+				<label class="checkcontainer"><input class="teamcheck" id="togglet2p2" type="checkbox"><span class="checkmark"></span></label>
+				<input class="nameplate" id="namet2p2" tabindex="7" placeholder="Player 2"/>
+			</div>
+			<div class="playercontainer">
+				<img id="t2p3" src="DefaultChamp.png"/>
+				<label class="checkcontainer"><input class="teamcheck" id="togglet2p3" type="checkbox"><span class="checkmark"></span></label>
+				<input class="nameplate" id="namet2p3" tabindex="8" placeholder="Player 3"/>
+			</div>
+			<div class="playercontainer">
+				<img id="t2p4" src="DefaultChamp.png"/>
+				<label class="checkcontainer"><input class="teamcheck" id="togglet2p4" type="checkbox"><span class="checkmark"></span></label>
+				<input class="nameplate" id="namet2p4" tabindex="9" placeholder="Player 4"/>
+			</div>
+			<div class="playercontainer">
+				<img id="t2p5" src="DefaultChamp.png"/>
+				<label class="checkcontainer"><input class="teamcheck" id="togglet2p5" type="checkbox"><span class="checkmark"></span></label>
+				<input class="nameplate" id="namet2p5" tabindex="10" placeholder="Player 5"/>
+			</div>
+		</div>
+		<p id="randomError" class="error"></p>
+		<button id="toggleSettings" onclick="settings()" type="button">Settings</button>
+		<br>
+	</div>
+	<div id="credits">
+		<p>Version 1.0.0 designed by AndrewChicken</p>
+		<p>Sound effects from 'Sonic Mania' by Sega</p>
+		<p>Champions and champion images from 'Paladins, Champions of the Realm' by Evil Mojo Studios</p>
+		<button type="button" id="goBack" onclick="credits()">Back</button>
+	</div>
+	<div id="footer">
+		<a href="https://www.youtube.com/AndrewChicken" target="_blank" rel="noopener noreferrer">YouTube</a>
+		<a href="https://www.twitch.tv/andrewchicken" target="_blank" rel="noopener noreferrer">Twitch</a>
+		<a href="https://discord.com/invite/fnjV3nV" target="_blank" rel="noopener noreferrer">Discord</a>
+		<a onclick="credits()">Credits</a>
+		<a href="https://www.nexus.gg/andrewchicken" target="_blank" rel="noopener noreferrer">Support Me!</a>
+	</div>
+</body>
